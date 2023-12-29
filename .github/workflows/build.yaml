@@ -1,0 +1,43 @@
+name: Build
+
+on:
+  - pull_request
+
+jobs:
+  Test:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.20.x
+      - uses: actions/checkout@v3.0.0
+      - name: Unit Test
+        run: |
+          make test
+
+  Build:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.20.x
+      - uses: actions/checkout@v3.0.0
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v4.1.1
+        with:
+          github_token: ${{ secrets.GH_PUBLISH_SECRETS }}
+          version: v1.14.0
+          args: release --skip-publish --rm-dist --snapshot
+
+  BuildImage:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.20.x
+      - uses: actions/checkout@v3.0.0
+      - name: Image
+        run: make build-image
